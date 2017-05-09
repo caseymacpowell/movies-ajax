@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Movies</title>
+	<script src="http://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+</head>
+<body>
+	<script>
+
+		$(document).ready(function(){
+
+			$.get("http://159.203.175.239:9001/checkouts.txt", function(userData){
+				$.get("http://159.203.175.239:9001/movies.txt", function(movieData){
+					var movie = movieData.split("\n"); //put movie data into an array, each movie at it's own position in the array
+					var checkout = userData.split("\n"); //put user data into an array, each line in its own position in the array
+					var newCheckout = [];
+					for(var i = 0; i < checkout.length; i++){
+						//created an array of arrays with user data in each array in order to access individual pieces of information
+						newCheckout.push(checkout[i].split(" "));
+					}
+					console.log(maxSomething(newCheckout, 0)); //gives users with most checkouts
+					console.log(maxSomething(newCheckout, 1)); //gives month with most checkouts
+					console.log(findMovie(movie, maxSomething(newCheckout, 2))); //most checked out movie
+				});
+			});
+			
+			function maxSomething(checkout, num){
+				//function that puts all user data into an object, finds the max count of a certain piece of data, and returns the highest user/users, month/months, etc. The first parammeter(checkout) will take the array of arrays and the second parameter(num) calls the position for the inside arrays.
+				var obj = {};
+				var max = 1;
+				var maxSomething;
+				var maxSomethingArr = [];
+				for(var i = 0; i < checkout.length; i++){
+					//this loop creates and populates our object
+					if(obj[checkout[i][num]] === undefined){
+						obj[checkout[i][num]] = 1;
+					} else {
+						obj[checkout[i][num]] += 1;
+					}
+				} 
+				for(var j = 0; j < checkout.length; j++){
+					//this for loop finds the max count for a particular piece of data
+					if(obj[checkout[j][num]] > max){
+						max = obj[checkout[j][num]];
+						maxSomething = checkout[j][num];
+					}
+				}
+				maxSomethingArr.push(maxSomething);
+				for(var h = 0; h < checkout.length; h++){
+					//this for loop checks to see if there are multiple pieces of data with the max count
+					if(obj[checkout[h][num]] === max){
+						if(maxSomethingArr.indexOf(checkout[h][num]) === -1){
+							maxSomethingArr.push(checkout[h][num]);
+						}
+					}
+				}
+				return maxSomethingArr; //returns an array of all pieces of data with the max count
+			}
+
+			function findMovie(movieList, arr){
+				//function that utilizes data from the maxSomething function to find movies in our second set of data(var movie, line 15)
+				var num = parseInt(arr[0]);
+				return movieList[num + 1];
+			}
+
+		});
+
+	</script>
+</body>
+</html>
